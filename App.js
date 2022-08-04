@@ -1,75 +1,57 @@
-import { Appbar } from 'react-native-paper';
 import { StatusBar } from 'expo-status-bar';
-import  React,{useState,useEffect}from 'react';
+import  React,{useState,useRef,useEffect}from 'react';
 import { Avatar, Button, Card, Title, Paragraph } from 'react-native-paper';
 import { StyleSheet, Text, View ,SafeAreaView,TextInput} from 'react-native';
-
+import SetCard from './assets/components/countryCard';
 //https://restcountries.com/v2/
 
 
 export default function App() {
 const [countryName,setCoutryName]=useState("");
-const [display,setDisplay]=useState({})
-const [text,setText] =useState("")
-
-
- const getCountryData= function(country){
-  const response= fetch(`https://restcountries.com/v2/name/${country}`)
-  .then((res)=>{
-    return res.json()
-  }).then((data)=>{
-    console.log(data[0]);
-    return data[0]
-  })
-
-  
-  return response;
+const [data,getData]=useState([]);
+const [execute,SetExecuted]=useState(false);
  
-  }
-  
-  getCountryData("portugal")
+const getDataFromApi=async function (country){
+  const request=await fetch(`https://restcountries.com/v2/name/${country}`);
+const data =await request.json();
+getData(data);
 
-  function displayCountry(data){
+}
+useEffect(()=>{
+if(execute){
 
-    return(
-      <View>
-         <Card>
-      <Card.Title title="Card Title" subtitle="Card Subtitle" left={LeftContent} />
-      <Card.Content>
-      <Title>{data.name}</Title>
-      <Paragraph>
-        {data.name} is country that speakes {data.languages[0].nativeName},
-        {data.name} region is {data.regiion}
-      </Paragraph>
-       </Card.Content>
-        <Card.Cover source={{ uri: `${data.flags.png}` }} />
-       <Card.Actions>
-      <Button>Cancel</Button>
-      <Button>Ok</Button>
-    </Card.Actions>
-      </Card>
-      </View>
-    )
-  }
+  return getDataFromApi(countryName)
+
+}
+ 
+},[execute])
+
+useEffect(()=>{
+  setInterval(() => {
+    SetExecuted(false);
+  }, 8000);
+},[execute])
+console.log(execute);
+console.log(data);
+ 
+function handleSearch(){
+  SetExecuted(true);
+}
 
   return (
     <SafeAreaView style={styles.container}>
-       <Appbar.Header style={{marginTop:40, backgroundColor:'blue'}}>
-      
-      <Appbar.Content title="Home" />
-      
-    </Appbar.Header>
      <View style={styles.searchbar}>
       <TextInput
       placeholder='Search Buy Name'
       onChangeText={setCoutryName}
       style={{color:"white"}}
       />
-              <Button icon="search" mode="contained" style={{height:"50px"}} onPress={()=>setDisplay(true)}>Search</Button>
+  <Button icon="click" mode="containe" onPress={()=>handleSearch()}>Search</Button>
       </View>
-                  <View>
+  <View style={{flex:3,width:"100%"}}>
 
-                  </View>
+<SetCard data={data}/>
+  </View>
       <StatusBar style="auto" />
     </SafeAreaView>
   );
@@ -78,7 +60,7 @@ const [text,setText] =useState("")
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: 'rgba(31, 0, 51,0.8)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -94,4 +76,4 @@ const styles = StyleSheet.create({
   cardColor:{
 
   }
-});
+})
